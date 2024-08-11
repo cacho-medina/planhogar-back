@@ -1,5 +1,6 @@
 import Usuario from "../database/models/Usuario.js";
 import bcrypt from "bcrypt";
+import generarJWT from "../helpers/jwt/generateJWT.js";
 
 export const login = async (req, res) => {
     try {
@@ -7,24 +8,26 @@ export const login = async (req, res) => {
         const user = await Usuario.findOne({ where: { username } });
         if (!user) {
             return res
-                .status(400)
+                .status(401)
                 .json({ message: "username* o password incorrecto" });
         }
         const userPassword = bcrypt.compareSync(password, user.password);
         if (!userPassword) {
             return res
-                .status(400)
+                .status(401)
                 .json({ message: "username o password incorrecto*" });
         }
         if (!user.activo) {
             return res.status(400).json({ message: "Usuario suspendido" });
         }
+        const token = await generarJWT(user._id, user.username);
         res.status(200).json({
             message: "El usuario ingreso correctamente!",
             email: user.email,
             username: user.username,
             id: user._id,
             esAdmin: user.esAdmin,
+            token,
         });
     } catch (error) {
         console.error(error);

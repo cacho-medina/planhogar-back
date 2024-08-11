@@ -1,8 +1,8 @@
+import sequelize from "../connection.js";
 import { DataTypes } from "sequelize";
-import { sequelize } from "../connection.js";
 
-const Producto = sequelize.define(
-    "Producto",
+const Plan = sequelize.define(
+    "Plan",
     {
         id: {
             type: DataTypes.UUID,
@@ -13,14 +13,8 @@ const Producto = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        cantidad: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
     },
     {
         timestamps: false,
     }
 );
-
-export default Producto;

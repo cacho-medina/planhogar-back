@@ -5,13 +5,21 @@ export const Cliente = sequelize.define(
     "Cliente",
     {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
-            autoIncrement: true,
         },
         nombre: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        documento: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+            validate: {
+                len: [7, 8],
+            },
         },
     },
     {
