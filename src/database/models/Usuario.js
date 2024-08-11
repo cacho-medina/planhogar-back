@@ -26,11 +26,11 @@ const Usuario = sequelize.define(
                 isEmail: true, // Debe ser un email válido
             },
         },
-        activo: {
+        isActive: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
         },
-        esAdmin: {
+        isAdmin: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
         },

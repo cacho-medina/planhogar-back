@@ -1,7 +1,7 @@
 import sequelize from "../connection.js";
 import { DataTypes } from "sequelize";
 
-const Plan = sequelize.define(
+export const Plan = sequelize.define(
     "Plan",
     {
         id: {
@@ -11,6 +11,10 @@ const Plan = sequelize.define(
         },
         nombre: {
             type: DataTypes.STRING,
+            allowNull: false,
+        },
+        isActive: {
+            type: DataTypes.BOOLEAN,
             allowNull: false,
         },
     },

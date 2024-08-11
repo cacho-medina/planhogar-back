@@ -21,6 +21,10 @@ export const Cliente = sequelize.define(
                 len: [7, 8],
             },
         },
+        isActive: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+        },
     },
     {
         timestamps: false,
