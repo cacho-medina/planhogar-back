@@ -17,7 +17,7 @@ export const postPlan = async (req, res) => {
                 message: "Se encontró un plan existente con ese nombre",
             });
         }
-        await Plan.create(req.body);
+        await Plan.create({ nombre: req.body.nombre, isActive: true });
         res.status(201).json({ message: "PLan creado con exito" });
     } catch (error) {
         console.error(error);

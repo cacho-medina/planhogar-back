@@ -12,6 +12,9 @@ export const Cliente = sequelize.define(
         nombre: {
             type: DataTypes.STRING,
             allowNull: false,
+            validate: {
+                len: [4, 100],
+            },
         },
         documento: {
             type: DataTypes.STRING,
