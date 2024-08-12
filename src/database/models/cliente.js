@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../connection.js";
+import sequelize from "../connection.js";
 
 export const Cliente = sequelize.define(
-    "Cliente",
+    "Client",
     {
         id: {
             type: DataTypes.UUID,

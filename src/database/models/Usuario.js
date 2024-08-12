@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../connection.js";
 
 const Usuario = sequelize.define(
-    "Usuario",
+    "User",
     {
         _id: {
             type: DataTypes.UUID,

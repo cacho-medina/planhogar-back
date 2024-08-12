@@ -21,7 +21,7 @@ export const postPlan = async (req, res) => {
         res.status(201).json({ message: "PLan creado con exito" });
     } catch (error) {
         console.error(error);
-        res.status(404).json({ message: "No se pudo obtener los planes" });
+        res.status(404).json({ message: "El plan no pudo ser registrado" });
     }
 };
 export const putPlan = async (req, res) => {
@@ -37,7 +37,7 @@ export const putPlan = async (req, res) => {
         res.status(200).json({ message: "Plan actualizado con exito" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "No se pudo obtener los planes" });
+        res.status(500).json({ message: "Error al actualizar el plan" });
     }
 };
 export const deletePlan = async (req, res) => {
