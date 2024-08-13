@@ -17,7 +17,7 @@ export const login = async (req, res) => {
                 .status(401)
                 .json({ message: "username o password incorrecto*" });
         }
-        if (!user.activo) {
+        if (!user.isActive) {
             return res.status(400).json({ message: "Usuario suspendido" });
         }
         const token = await generarJWT(user._id, user.username);
@@ -26,7 +26,7 @@ export const login = async (req, res) => {
             email: user.email,
             username: user.username,
             id: user._id,
-            esAdmin: user.esAdmin,
+            isAdmin: user.isAdmin,
             token,
         });
     } catch (error) {
