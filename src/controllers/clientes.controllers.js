@@ -16,7 +16,7 @@ export const getClientes = async (req, res) => {
 //DEL BODY LLEGA cliente(nombre,documento,isActive:true) y plan(id,nombre)
 export const postCliente = async (req, res) => {
     try {
-        const { nombre, documento, plan } = req.body;
+        const { nombre, documento, idPlan } = req.body;
         // 1. Buscar si el cliente ya está registrado por documento
         let clienteRegistrado = await Cliente.findOne({
             where: { documento },
@@ -31,7 +31,7 @@ export const postCliente = async (req, res) => {
         }
         // 3. Asociar el cliente con el plan en la tabla intermedia
         await ClientPlanRelation.create({
-            idPlan: plan.id,
+            idPlan,
             idClient: clienteRegistrado.id,
         });
         res.status(201).json({ message: "Cliente registrado con exito" });

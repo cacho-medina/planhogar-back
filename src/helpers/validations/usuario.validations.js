@@ -13,11 +13,6 @@ const validacionUsuario = [
         .matches(/.+\@.+\..+/)
         .withMessage("El correo electronico debe ser valido"),
     check("password").notEmpty().withMessage("la contraseña es obligatoria"),
-    check("isActive")
-        .notEmpty()
-        .withMessage("El estado del usuario es obligatorio")
-        .isBoolean()
-        .withMessage("El estado debe ser booleano"),
     (req, res, next) => resultadoValidacion(req, res, next),
 ];
 

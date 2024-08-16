@@ -56,6 +56,7 @@ export const getUsers = async (req, res) => {
     }
 };
 export const postUser = async (req, res) => {
+    const { username, password, email } = req.body;
     try {
         const user = await Usuario.findOne({
             where: { email: req.body.email },
@@ -65,7 +66,13 @@ export const postUser = async (req, res) => {
                 .status(400)
                 .json({ message: "El email ya esta registrado" });
         }
-        const newUser = await Usuario.build(req.body);
+        const newUser = await Usuario.build({
+            username,
+            password,
+            email,
+            isActive: true,
+            isAdmin: true,
+        });
         const salt = bcrypt.genSaltSync(10);
         newUser.password = bcrypt.hashSync(req.body.password, salt);
         await newUser.save();
