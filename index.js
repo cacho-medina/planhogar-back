@@ -21,6 +21,18 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "/public")));
 
 //conexion a base de datos
+async function main() {
+    await sequelize.sync({ force: false });
+    app.listen(PORT, () => {
+        console.log(
+            "El servidor esta corriedo en: " + `http://localhost:${PORT}`
+        );
+    });
+}
+
+main();
+
+/* 
 sequelize
     .sync({ force: false }) //cambiar a false en produccion-
     .then(() => {
@@ -32,7 +44,7 @@ sequelize
     })
     .catch((error) => {
         console.log(error);
-    });
+    }); */
 
 app.use("/api/cliente", clientesRoutes);
 app.use("/api/usuario", userRoutes);
