@@ -1,5 +1,6 @@
 import { ClientPlanRelation } from "../database/models/relationsModels/ClientPlan.js";
 import { Plan } from "../database/models/Plan.js";
+import { Cliente } from "../database/models/Cliente.js";
 
 export const getClientes = async (req, res) => {
     try {
