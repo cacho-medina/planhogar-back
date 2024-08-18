@@ -6,6 +6,7 @@ const {
     HOST_POSTGRES,
     PORT_POSTGRES,
     BD_POSTGRES,
+    POSTGRES_URI,
 } = process.env;
 
 // conectar con postgres
@@ -16,12 +17,9 @@ const {
         native: false,
     }
 ); */
-const sequelize = new Sequelize(
-    `postgresql://planhogar_user:yJmFOuJLuQOvbCkJlUMlgxYjGJ2aM6RP@dpg-cr0qporqf0us73fe9dk0-a.ohio-postgres.render.com/planhogar`,
-    {
-        logging: false,
-        native: false,
-    }
-);
+const sequelize = new Sequelize(`${POSTGRES_URI}`, {
+    logging: false,
+    native: false,
+});
 
 export default sequelize;
