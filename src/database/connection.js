@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import pg from "pg";
 
 const {
     USER_POSTGRES,
@@ -20,6 +21,7 @@ const {
 const sequelize = new Sequelize(`${POSTGRES_URI}`, {
     logging: false,
     native: false,
+    dialectModule: pg,
 });
 
 export default sequelize;
