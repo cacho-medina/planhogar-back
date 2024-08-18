@@ -29,6 +29,14 @@ export const postCliente = async (req, res) => {
                 isActive: true,
             });
         }
+        let planStatus = await Plan.findByPk(idPlan);
+        if (!planStatus.isActive) {
+            return res
+                .status(404)
+                .json({
+                    message: "No se puede registrar cliente con plan inactivo",
+                });
+        }
         // 3. Asociar el cliente con el plan en la tabla intermedia
         await ClientPlanRelation.create({
             idPlan,

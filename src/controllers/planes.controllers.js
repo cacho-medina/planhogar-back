@@ -9,6 +9,15 @@ export const getPlan = async (req, res) => {
         res.status(404).json({ message: "No se pudo obtener los planes" });
     }
 };
+export const getPlanById = async (req, res) => {
+    try {
+        const plan = await Plan.findByPk(req.params.id);
+        res.status(200).json(plan);
+    } catch (error) {
+        console.error(error);
+        res.status(404).json({ message: "No se pudo obtener el plan" });
+    }
+};
 export const postPlan = async (req, res) => {
     try {
         const plan = await Plan.findOne({ where: { nombre: req.body.nombre } });

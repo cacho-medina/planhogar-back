@@ -26,7 +26,7 @@ app.use("/api/plan", planRoutes);
 
 //conexion a base de datos
 sequelize
-    .sync({ force: true }) //cambiar a false en produccion-
+    .sync({ force: false }) //cambiar a false en produccion-
     .then(() => {
         app.listen(PORT, () => {
             console.log(
