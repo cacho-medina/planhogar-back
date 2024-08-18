@@ -20,10 +20,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "/public")));
 
-app.use("/api/cliente", clientesRoutes);
-app.use("/api/usuario", userRoutes);
-app.use("/api/plan", planRoutes);
-
 //conexion a base de datos
 sequelize
     .sync({ force: false }) //cambiar a false en produccion-
@@ -37,3 +33,7 @@ sequelize
     .catch((error) => {
         console.log(error);
     });
+
+app.use("/api/cliente", clientesRoutes);
+app.use("/api/usuario", userRoutes);
+app.use("/api/plan", planRoutes);
