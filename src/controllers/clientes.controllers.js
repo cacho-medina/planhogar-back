@@ -1,4 +1,3 @@
-import { Cliente } from "../database/models/Cliente.js";
 import { ClientPlanRelation } from "../database/models/relationsModels/ClientPlan.js";
 import { Plan } from "../database/models/Plan.js";
 
@@ -31,11 +30,9 @@ export const postCliente = async (req, res) => {
         }
         let planStatus = await Plan.findByPk(idPlan);
         if (!planStatus.isActive) {
-            return res
-                .status(404)
-                .json({
-                    message: "No se puede registrar cliente con plan inactivo",
-                });
+            return res.status(404).json({
+                message: "No se puede registrar cliente con plan inactivo",
+            });
         }
         // 3. Asociar el cliente con el plan en la tabla intermedia
         await ClientPlanRelation.create({
