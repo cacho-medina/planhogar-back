@@ -6,13 +6,18 @@ import { Plan } from "../Plan.js";
 export const ClientPlanRelation = sequelize.define(
     "ClientPlan",
     {
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            primaryKey: true,
+        },
         idClient: {
             type: DataTypes.UUIDV4,
             references: {
                 model: Cliente,
                 key: "id",
             },
-            primaryKey: true,
+            allowNull: false,
         },
         idPlan: {
             type: DataTypes.UUIDV4,
@@ -20,7 +25,11 @@ export const ClientPlanRelation = sequelize.define(
                 model: Plan,
                 key: "id",
             },
-            primaryKey: true,
+            allowNull: false,
+        },
+        fechaRegistro: {
+            type: DataTypes.DATE,
+            allowNull: false,
         },
     },
     {

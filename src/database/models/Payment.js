@@ -16,34 +16,29 @@ export const Payment = sequelize.define(
         },
         fecha: {
             type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW,
             allowNull: false,
         },
-        estado: {
-            type: DataTypes.STRING,
+        numeroCuota: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
-        idClient: {
+        clientPlanId: {
             type: DataTypes.UUID,
             references: {
                 model: ClientPlanRelation,
-                key: "idClient",
-            },
-            allowNull: false,
-        },
-        idPlan: {
-            type: DataTypes.UUID,
-            references: {
-                model: ClientPlanRelation,
-                key: "idPlan",
+                key: "id",
             },
             allowNull: false,
         },
     },
     {
-        timestamps: true,
+        timestamps: false,
     }
 );
 
-ClientPlanRelation.hasMany(Payment, { foreignKey: "clientPlanId" });
-Payment.belongsTo(ClientPlanRelation, { foreignKey: "clientPlanId" });
+ClientPlanRelation.hasMany(Payment, {
+    foreignKey: "clientPlanId",
+});
+Payment.belongsTo(ClientPlanRelation, {
+    foreignKey: "clientPlanId",
+});

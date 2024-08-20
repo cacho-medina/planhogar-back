@@ -12,6 +12,7 @@ const router = Router();
 
 router.route("/").get(getClientes).post([validacionCliente], postCliente);
 router.get("/:id", getClienteById);
+//Rutas para editar info de cliente o eliminar/deshabilitar cliente
 /* router.route("/:id").put(putCliente).delete(deleteCliente); */
 
 export default router;

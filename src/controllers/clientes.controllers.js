@@ -1,6 +1,7 @@
 import { ClientPlanRelation } from "../database/models/relationsModels/ClientPlan.js";
 import { Plan } from "../database/models/Plan.js";
 import { Cliente } from "../database/models/Cliente.js";
+import { Payment } from "../database/models/Payment.js";
 
 export const getClientes = async (req, res) => {
     try {
@@ -12,11 +13,14 @@ export const getClientes = async (req, res) => {
     }
 };
 
-//DEBE REGISTRAR EL CLIENTE Y ASOCIARLO A UN PLAN
-//DEL BODY LLEGA cliente(nombre,documento,isActive:true) y plan(id,nombre)
+//DEBE REGISTRAR EL CLIENTE, ASOCIARLO A UN PLAN Y REGISTRAR EL PRIMER PAGO
+//DEL BODY LLEGA cliente(nombre,documento,isActive:true), plan(id) y pago(monto, fecha)
 export const postCliente = async (req, res) => {
+    //MEJORAR PARA QUE NO SE CREE UN REGISTRO DE UN CLIENTE CON UN PLAN CUANDO YA EXISTE
+    //ACTUALMENTE CREA UN REGISTRO DEL PAYMENT PERO NO UN REGISTRO NUEVO ENTRE EL CLIENTE Y EL PLAN
     try {
-        const { nombre, documento, idPlan } = req.body;
+        const { nombre, documento, idPlan, monto } = req.body;
+        const fecha = new Date();
         // 1. Buscar si el cliente ya está registrado por documento
         let clienteRegistrado = await Cliente.findOne({
             where: { documento },
@@ -29,21 +33,39 @@ export const postCliente = async (req, res) => {
                 isActive: true,
             });
         }
+        //3. Verifica si el plan esta inactivo
         let planStatus = await Plan.findByPk(idPlan);
         if (!planStatus.isActive) {
             return res.status(404).json({
                 message: "No se puede registrar cliente con plan inactivo",
             });
         }
-        // 3. Asociar el cliente con el plan en la tabla intermedia
-        await ClientPlanRelation.create({
+        //4. Verifica si hay un registro del cliente con el plan seleccionado
+        let ClientPlanRel = await ClientPlanRelation.findOne({
+            where: { idPlan, idClient: clienteRegistrado.id },
+        });
+        if (ClientPlanRel) {
+            return res.status(404).json({
+                message: "El cliente ya esta asociado al plan seleccionado",
+            });
+        }
+        // 4. Asociar el cliente con el plan en la tabla intermedia
+        ClientPlanRel = await ClientPlanRelation.create({
             idPlan,
             idClient: clienteRegistrado.id,
+            fechaRegistro: fecha, //verificar si se ajusta a necesidades
+        });
+        //5. Registrar primer pago
+        await Payment.create({
+            monto,
+            fecha,
+            clientPlanId: ClientPlanRel.id,
+            numeroCuota: 1, //se establece que es la primera cuota
         });
         res.status(201).json({ message: "Cliente registrado con exito" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "El cliente no pudo ser registrado" });
+        res.status(500).json({ message: "Error al realizar el registro" });
     }
 };
 export const getClienteById = async (req, res) => {
@@ -56,19 +78,28 @@ export const getClienteById = async (req, res) => {
             });
         }
         // 2. Encontrar los planes asociados al cliente
-        /* const planes = await Plan.findAll({
-            include: [
-                {
-                    model: Cliente,
-                    through: {
-                        where: { idClient: req.params.id },
-                    },
-                    attributes: [], // No se necesitan atributos de la tabla Cliente en el resultado final
-                },
-            ],
-        }); */
-        const planes = await cliente.getPlans();
-        res.status(200).json({ cliente, planes });
+        const planesByIdClient = await ClientPlanRelation.findAll({
+            where: { idClient: req.params.id },
+        });
+        if (planesByIdClient.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "El cliente no posee planes asociados" });
+        }
+        // 3. Formatear la respuesta para incluir cliente, planes y pagos
+        const planesConPagos = await Promise.all(
+            planesByIdClient.map(async (planRelation) => {
+                const pagosRelClient = await Payment.findAll({
+                    where: { clientPlanId: planRelation.id },
+                });
+                return {
+                    plan: await Plan.findByPk(planRelation.idPlan),
+                    pagosByPlan: pagosRelClient,
+                };
+            })
+        );
+        // 4. Responder con los datos del cliente, planes y pagos
+        res.status(200).json({ cliente, planes: planesConPagos });
     } catch (error) {
         console.error(error);
         res.status(404).json({

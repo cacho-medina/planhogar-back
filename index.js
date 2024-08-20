@@ -2,6 +2,7 @@ import express from "express";
 import clientesRoutes from "./src/routes/clientes.routes.js";
 import userRoutes from "./src/routes/usuarios.routes.js";
 import planRoutes from "./src/routes/planes.routes.js";
+import pagosRoutes from "./src/routes/payments.routes.js";
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
@@ -49,3 +50,4 @@ sequelize
 app.use("/api/cliente", clientesRoutes);
 app.use("/api/usuario", userRoutes);
 app.use("/api/plan", planRoutes);
+app.use("/api/pago", pagosRoutes);
