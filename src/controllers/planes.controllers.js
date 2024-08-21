@@ -22,7 +22,7 @@ export const postPlan = async (req, res) => {
     try {
         const plan = await Plan.findOne({ where: { nombre: req.body.nombre } });
         if (plan) {
-            return res.status(400).json({
+            return res.status(404).json({
                 message: "Se encontró un plan existente con ese nombre",
             });
         }
@@ -30,7 +30,7 @@ export const postPlan = async (req, res) => {
         res.status(201).json({ message: "PLan creado con exito" });
     } catch (error) {
         console.error(error);
-        res.status(404).json({ message: "El plan no pudo ser registrado" });
+        res.status(500).json({ message: "El plan no pudo ser registrado" });
     }
 };
 export const putPlan = async (req, res) => {

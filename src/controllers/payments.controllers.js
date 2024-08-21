@@ -1,5 +1,34 @@
 import { ClientPlanRelation } from "../database/models/relationsModels/ClientPlan.js";
 import { Payment } from "../database/models/Payment.js";
+import { Cliente } from "../database/models/Cliente.js";
+import { Plan } from "../database/models/Plan.js";
+
+export const getPagos = async (req, res) => {
+    try {
+        const pagosRegistrados = await Payment.findAll({
+            include: [
+                {
+                    model: ClientPlanRelation,
+                    include: [
+                        { model: Cliente, attributes: ["nombre", "documento"] },
+                        { model: Plan, attributes: ["nombre"] },
+                    ],
+                },
+            ],
+            order: [["fecha", "DESC"]],
+        });
+        if (pagosRegistrados.length === 0) {
+            return res.status(404).json({
+                message:
+                    "No se encontraron pagos registrados en la base de datos.",
+            });
+        }
+        res.status(200).json(pagosRegistrados);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener los pagos" });
+    }
+};
 
 export const getPagosByClient = async (req, res) => {
     const { id } = req.params;
@@ -52,10 +81,18 @@ export const postPagos = async (req, res) => {
         });
         if (!planByClient) {
             return res.status(404).json({
-                message: "El cliente esta asociado plan seleccionado",
+                message: "El cliente no esta asociado plan seleccionado",
             });
         }
-        console.log(planByClient.id);
+        //verificar si el numero de cuota a pagar ya esta registrado
+        const pagoRegistrado = await Payment.findOne({
+            where: { clientPlanId: planByClient.id, numeroCuota },
+        });
+        if (pagoRegistrado) {
+            return res
+                .status(400)
+                .json({ message: "El pago ya esta registrado" });
+        }
         //crear el pago
         const pago = await Payment.create({
             monto,

@@ -49,13 +49,13 @@ export const postCliente = async (req, res) => {
                 message: "El cliente ya esta asociado al plan seleccionado",
             });
         }
-        // 4. Asociar el cliente con el plan en la tabla intermedia
+        // 5. Asociar el cliente con el plan en la tabla intermedia
         ClientPlanRel = await ClientPlanRelation.create({
             idPlan,
             idClient: clienteRegistrado.id,
             fechaRegistro: fecha, //verificar si se ajusta a necesidades
         });
-        //5. Registrar primer pago
+        //6. Registrar primer pago
         await Payment.create({
             monto,
             fecha,

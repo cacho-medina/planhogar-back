@@ -13,10 +13,10 @@ import planesValidations from "../helpers/validations/planes.validations.js";
 
 const router = Router();
 
-router.route("/").get(getPlan).post([planesValidations], postPlan);
+router.route("/").get(getPlan).post([validarJWT, planesValidations], postPlan);
 router.get("/:id", getPlanById);
-router.route("/update/:id").put([planesValidations], putPlan); //actualizar plan
-router.put("/delete/:id", deletePlan); //desactivar plan
-router.put("/activate/:id", activarPlan); //activar plan
+router.route("/update/:id").put([validarJWT, planesValidations], putPlan); //actualizar plan
+router.put("/delete/:id", validarJWT, deletePlan); //desactivar plan
+router.put("/activate/:id", validarJWT, activarPlan); //activar plan
 
 export default router;

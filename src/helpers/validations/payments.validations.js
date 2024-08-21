@@ -10,6 +10,12 @@ const paymentsValidations = [
     check("idPlan")
         .notEmpty()
         .withMessage("El numero de plan es necesario para registrar el pago"),
+    check("idClient")
+        .notEmpty()
+        .withMessage("El id del cliente es necesario para registrar el pago"),
+    check("numeroCuota")
+        .notEmpty()
+        .withMessage("El numero de la cuota a pagar es obligatorio"),
     (req, res, next) => resultadoValidacion(req, res, next),
 ];
 

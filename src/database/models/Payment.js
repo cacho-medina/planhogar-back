@@ -1,6 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../connection.js";
 import { ClientPlanRelation } from "./relationsModels/ClientPlan.js";
+import { Cliente } from "./Cliente.js";
+import { Plan } from "./Plan.js";
 
 export const Payment = sequelize.define(
     "Payment",
@@ -42,3 +44,6 @@ ClientPlanRelation.hasMany(Payment, {
 Payment.belongsTo(ClientPlanRelation, {
     foreignKey: "clientPlanId",
 });
+
+ClientPlanRelation.belongsTo(Cliente, { foreignKey: "idClient" });
+ClientPlanRelation.belongsTo(Plan, { foreignKey: "idPlan" });
