@@ -24,6 +24,14 @@ export const Payment = sequelize.define(
             type: DataTypes.INTEGER,
             allowNull: false,
         },
+        medio: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        cobrador: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         clientPlanId: {
             type: DataTypes.UUID,
             references: {

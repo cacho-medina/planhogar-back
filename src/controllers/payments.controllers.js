@@ -17,12 +17,12 @@ export const getPagos = async (req, res) => {
             ],
             order: [["fecha", "DESC"]],
         });
-        if (pagosRegistrados.length === 0) {
+        /* if (pagosRegistrados.length === 0) {
             return res.status(404).json({
                 message:
                     "No se encontraron pagos registrados en la base de datos.",
             });
-        }
+        } */
         res.status(200).json(pagosRegistrados);
     } catch (error) {
         console.error(error);
@@ -73,11 +73,21 @@ export const getPagosByClientAndPlan = async (req, res) => {
     }
 };
 export const postPagos = async (req, res) => {
-    const { monto, idPlan, numeroCuota, idClient } = req.body;
+    const { monto, idPlan, numeroCuota, documento, nombre, medio, cobrador } =
+        req.body;
     try {
+        //busca el cliente mediante su nombre y documento
+        const cliente = await Cliente.findOne({ where: { documento, nombre } });
+        if (!cliente) {
+            return res.status(404).json({
+                message:
+                    "No existe cliente registrado con ese documento y nombre",
+            });
+        }
+
         //verifica que el cliente esté asociado al plan seleccionado
         const planByClient = await ClientPlanRelation.findOne({
-            where: { idPlan, idClient },
+            where: { idPlan, idClient: cliente.id },
         });
         if (!planByClient) {
             return res.status(404).json({
@@ -99,6 +109,8 @@ export const postPagos = async (req, res) => {
             fecha: new Date(),
             clientPlanId: planByClient.id,
             numeroCuota,
+            cobrador,
+            medio,
         });
         res.status(201).json({ message: "Pago registrado con exito" });
     } catch (error) {

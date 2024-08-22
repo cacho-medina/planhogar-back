@@ -33,20 +33,6 @@ async function main() {
 
 main();
 
-/* 
-sequelize
-    .sync({ force: false }) //cambiar a false en produccion-
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(
-                "El servidor esta corriedo en: " + `http://localhost:${PORT}`
-            );
-        });
-    })
-    .catch((error) => {
-        console.log(error);
-    }); */
-
 app.use("/api/cliente", clientesRoutes);
 app.use("/api/usuario", userRoutes);
 app.use("/api/plan", planRoutes);

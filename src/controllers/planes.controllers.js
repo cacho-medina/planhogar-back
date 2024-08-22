@@ -41,6 +41,14 @@ export const putPlan = async (req, res) => {
                 .status(404)
                 .json({ message: "El plan no fue encontrado" });
         }
+        const nombreExist = await Plan.findOne({
+            where: { nombre: req.body.nombre },
+        });
+        if (nombreExist) {
+            return res
+                .status(400)
+                .json({ message: "Ya existe un plan con ese nombre" });
+        }
         plan.nombre = req.body.nombre;
         await plan.save();
         res.status(200).json({ message: "Plan actualizado con exito" });

@@ -16,6 +16,16 @@ const validacionCliente = [
         .withMessage("El documento debe ser un valor numerico")
         .isLength({ min: 7, max: 8 })
         .withMessage("El numero de documento debe ser valido"),
+    check("idPlan")
+        .notEmpty()
+        .withMessage("Es necesario que seleccione un plan"),
+    check("monto")
+        .notEmpty()
+        .withMessage("El monto de la primera cuota es obligatorio"),
+    check("medio").notEmpty().withMessage("El medio de pago es obligatorio"),
+    check("cobrador")
+        .notEmpty()
+        .withMessage("El nombre del cobrador es obligatorio"),
     (req, res, next) => resultadoValidacion(req, res, next),
 ];
 

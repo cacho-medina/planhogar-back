@@ -19,7 +19,7 @@ export const postCliente = async (req, res) => {
     //MEJORAR PARA QUE NO SE CREE UN REGISTRO DE UN CLIENTE CON UN PLAN CUANDO YA EXISTE
     //ACTUALMENTE CREA UN REGISTRO DEL PAYMENT PERO NO UN REGISTRO NUEVO ENTRE EL CLIENTE Y EL PLAN
     try {
-        const { nombre, documento, idPlan, monto } = req.body;
+        const { nombre, documento, idPlan, monto, medio, cobrador } = req.body;
         const fecha = new Date();
         // 1. Buscar si el cliente ya está registrado por documento
         let clienteRegistrado = await Cliente.findOne({
@@ -58,6 +58,8 @@ export const postCliente = async (req, res) => {
         //6. Registrar primer pago
         await Payment.create({
             monto,
+            cobrador,
+            medio,
             fecha,
             clientPlanId: ClientPlanRel.id,
             numeroCuota: 1, //se establece que es la primera cuota
