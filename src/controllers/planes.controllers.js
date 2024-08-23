@@ -1,6 +1,6 @@
 import { Plan } from "../database/models/Plan.js";
 import { PlanProducto } from "../database/models/relationsModels/PlanProducto.js";
-import Producto from "../database/models/Producto.js";
+import Producto from "../database/models/producto.js";
 
 export const getPlan = async (req, res) => {
     try {
