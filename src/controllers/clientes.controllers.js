@@ -2,7 +2,7 @@ import { ClientPlanRelation } from "../database/models/relationsModels/ClientPla
 import { Plan } from "../database/models/Plan.js";
 import { Cliente } from "../database/models/Cliente.js";
 import { Payment } from "../database/models/Payment.js";
-import Producto from "../database/models/Producto.js";
+import Producto from "../database/models/producto.js";
 import sequelize from "../database/connection.js";
 
 export const getClientes = async (req, res) => {

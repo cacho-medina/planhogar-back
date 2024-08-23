@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 //conexion a base de datos
 async function main() {
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: false });
     app.listen(PORT, () => {
         console.log(
             "El servidor esta corriedo en: " + `http://localhost:${PORT}`
