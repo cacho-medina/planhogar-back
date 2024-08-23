@@ -2,6 +2,8 @@ import { ClientPlanRelation } from "../database/models/relationsModels/ClientPla
 import { Plan } from "../database/models/Plan.js";
 import { Cliente } from "../database/models/Cliente.js";
 import { Payment } from "../database/models/Payment.js";
+import Producto from "../database/models/Producto.js";
+import sequelize from "../database/connection.js";
 
 export const getClientes = async (req, res) => {
     try {
@@ -15,9 +17,8 @@ export const getClientes = async (req, res) => {
 
 //DEBE REGISTRAR EL CLIENTE, ASOCIARLO A UN PLAN Y REGISTRAR EL PRIMER PAGO
 //DEL BODY LLEGA cliente(nombre,documento,isActive:true), plan(id) y pago(monto, fecha)
-export const postCliente = async (req, res) => {
-    //MEJORAR PARA QUE NO SE CREE UN REGISTRO DE UN CLIENTE CON UN PLAN CUANDO YA EXISTE
-    //ACTUALMENTE CREA UN REGISTRO DEL PAYMENT PERO NO UN REGISTRO NUEVO ENTRE EL CLIENTE Y EL PLAN
+/* export const postCliente = async (req, res) => {
+    
     try {
         const { nombre, documento, idPlan, monto, medio, cobrador } = req.body;
         const fecha = new Date();
@@ -64,12 +65,176 @@ export const postCliente = async (req, res) => {
             clientPlanId: ClientPlanRel.id,
             numeroCuota: 1, //se establece que es la primera cuota
         });
+        //7. Actualizar el inventario del plan
+        const plan = await Plan.findByPk(ClientPlanRel.idPlan, {
+            include: [
+                {
+                    model: Producto,
+                    through: { attributes: [] }, // No incluir atributos de la tabla intermedia
+                },
+            ],
+        });
+        if (!plan) {
+            return new Error("Plan no encontrado");
+        }
+        for (let producto of plan.Productos) {
+            producto.cantidad -= 1;
+
+            // Guardar cambios del producto
+            await producto.save();
+        }
+
         res.status(201).json({ message: "Cliente registrado con exito" });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error al realizar el registro" });
     }
+}; */
+
+//-------------------------------------CODIGO REFACTORIZADO-----------------------------------------------------------------------
+
+export const postCliente = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const { nombre, documento, idPlan, monto, medio, cobrador } = req.body;
+
+        // Validar la solicitud
+        if (!nombre || !documento || !idPlan || !monto || !medio || !cobrador) {
+            return res.status(400).json({ message: "Faltan datos necesarios" });
+        }
+
+        // Buscar o crear el cliente
+        const clienteRegistrado = await findOrCreateCliente(
+            nombre,
+            documento,
+            transaction
+        );
+
+        // Verificar estado del plan
+        const planStatus = await validatePlanStatus(idPlan, transaction);
+
+        // Verificar si el cliente ya está asociado al plan
+        await checkClientPlanAssociation(
+            clienteRegistrado.id,
+            idPlan,
+            transaction
+        );
+
+        // Asociar cliente con el plan y registrar el primer pago
+        const clientPlanRel = await associateClientWithPlan(
+            clienteRegistrado.id,
+            idPlan,
+            transaction
+        );
+        await registerFirstPayment(
+            clientPlanRel.id,
+            monto,
+            medio,
+            cobrador,
+            transaction
+        );
+
+        // Actualizar el inventario de productos
+        await updatePlanInventory(clientPlanRel.idPlan, transaction);
+
+        // Confirmar la transacción y enviar respuesta
+        await transaction.commit();
+        res.status(201).json({ message: "Cliente registrado con éxito" });
+    } catch (error) {
+        await transaction.rollback();
+        console.error(error);
+        res.status(500).json({ message: "Error al realizar el registro" });
+    }
 };
+
+const findOrCreateCliente = async (nombre, documento, transaction) => {
+    let cliente = await Cliente.findOne({
+        where: { documento },
+        transaction,
+    });
+
+    if (!cliente) {
+        cliente = await Cliente.create(
+            {
+                nombre,
+                documento,
+                isActive: true,
+            },
+            { transaction }
+        );
+    }
+
+    return cliente;
+};
+const validatePlanStatus = async (idPlan, transaction) => {
+    const plan = await Plan.findByPk(idPlan, { transaction });
+
+    if (!plan || !plan.isActive) {
+        throw new Error("No se puede registrar cliente con plan inactivo");
+    }
+
+    return plan;
+};
+const checkClientPlanAssociation = async (idClient, idPlan, transaction) => {
+    const clientPlan = await ClientPlanRelation.findOne({
+        where: { idClient, idPlan },
+        transaction,
+    });
+
+    if (clientPlan) {
+        throw new Error("El cliente ya está asociado al plan seleccionado");
+    }
+};
+const associateClientWithPlan = async (idClient, idPlan, transaction) => {
+    return await ClientPlanRelation.create(
+        {
+            idClient,
+            idPlan,
+            fechaRegistro: new Date(),
+        },
+        { transaction }
+    );
+};
+const registerFirstPayment = async (
+    clientPlanId,
+    monto,
+    medio,
+    cobrador,
+    transaction
+) => {
+    return await Payment.create(
+        {
+            monto,
+            medio,
+            cobrador,
+            fecha: new Date(),
+            clientPlanId,
+            numeroCuota: 1,
+        },
+        { transaction }
+    );
+};
+const updatePlanInventory = async (idPlan, transaction) => {
+    const plan = await Plan.findByPk(idPlan, {
+        include: [
+            {
+                model: Producto,
+                through: { attributes: [] },
+            },
+        ],
+        transaction,
+    });
+
+    if (!plan) {
+        throw new Error("Plan no encontrado");
+    }
+
+    for (const producto of plan.Productos) {
+        producto.cantidad -= 1;
+        await producto.save({ transaction });
+    }
+};
+
 export const getClienteById = async (req, res) => {
     try {
         // 1. Verificar si el cliente existe

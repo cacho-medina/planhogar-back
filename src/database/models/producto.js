@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../connection.js";
+import sequelize from "../connection.js";
 
 const Producto = sequelize.define(
     "Producto",
@@ -15,6 +15,10 @@ const Producto = sequelize.define(
         },
         cantidad: {
             type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        isActive: {
+            type: DataTypes.BOOLEAN,
             allowNull: false,
         },
     },

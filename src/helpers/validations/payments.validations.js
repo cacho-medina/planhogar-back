@@ -6,7 +6,14 @@ const paymentsValidations = [
         .notEmpty()
         .withMessage("El monto a pagar es obligatorio")
         .isNumeric()
-        .withMessage("El monto debe ser un valor numerico"),
+        .withMessage("El monto debe ser un valor numerico")
+        .custom((value) => {
+            if (value > 1000) {
+                return true;
+            } else {
+                throw new Error("El precio debe ser un valor mayor a 1000");
+            }
+        }),
     check("idPlan")
         .notEmpty()
         .withMessage("El numero de plan es necesario para registrar el pago"),
