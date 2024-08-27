@@ -73,15 +73,13 @@ export const getPagosByClientAndPlan = async (req, res) => {
     }
 };
 export const postPagos = async (req, res) => {
-    const { monto, idPlan, numeroCuota, documento, nombre, medio, cobrador } =
-        req.body;
+    const { monto, idPlan, numeroCuota, documento, medio, cobrador } = req.body;
     try {
         //busca el cliente mediante su nombre y documento
-        const cliente = await Cliente.findOne({ where: { documento, nombre } });
+        const cliente = await Cliente.findOne({ where: { documento } });
         if (!cliente) {
             return res.status(404).json({
-                message:
-                    "No existe cliente registrado con ese documento y nombre",
+                message: "No existe cliente registrado con ese documento",
             });
         }
 
