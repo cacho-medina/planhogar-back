@@ -111,7 +111,7 @@ export const postCliente = async (req, res) => {
         );
 
         // Verificar estado del plan
-        const planStatus = await validatePlanStatus(idPlan, transaction);
+        const plan = await validatePlanStatus(idPlan, transaction);
 
         // Verificar si el cliente ya está asociado al plan
         await checkClientPlanAssociation(
@@ -219,7 +219,7 @@ const updatePlanInventory = async (idPlan, transaction) => {
         include: [
             {
                 model: Producto,
-                through: { attributes: [] },
+                through: { attributes: ["cantidad"] },
             },
         ],
         transaction,
@@ -229,8 +229,19 @@ const updatePlanInventory = async (idPlan, transaction) => {
         throw new Error("Plan no encontrado");
     }
 
+    // Verificar el stock disponible para cada producto
     for (const producto of plan.Productos) {
-        producto.cantidad -= 1;
+        if (producto.cantidad < producto.PlanProducto.cantidad) {
+            await transaction.rollback();
+            return res.status(400).json({
+                message: `No hay suficiente stock de ${producto.nombre}`,
+            });
+        }
+    }
+
+    // Reducir el stock de cada producto
+    for (const producto of plan.Productos) {
+        producto.cantidad -= producto.PlanProducto.cantidad;
         await producto.save({ transaction });
     }
 };

@@ -7,7 +7,7 @@ import {
     activarPlan,
     getPlanById,
 } from "../controllers/planes.controllers.js";
-//AGREGAR JWT
+
 import validarJWT from "../helpers/jwt/validateJWT.js";
 import planesValidations from "../helpers/validations/planes.validations.js";
 

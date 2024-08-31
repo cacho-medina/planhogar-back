@@ -1,6 +1,7 @@
 import { Plan } from "../database/models/Plan.js";
 import { PlanProducto } from "../database/models/relationsModels/PlanProducto.js";
 import Producto from "../database/models/producto.js";
+import sequelize from "../database/connection.js";
 
 export const getPlan = async (req, res) => {
     try {
@@ -41,7 +42,9 @@ export const getPlanById = async (req, res) => {
     }
 };
 export const postPlan = async (req, res) => {
-    const { nombre, productosIds } = req.body;
+    // nombre de producto y productos:[ {idProd:"idProducto1",cantidad: 20}, {idProd:"idProducto2",cantidad: 10}]
+    const { nombre, productos } = req.body;
+
     try {
         const plan = await Plan.findOne({ where: { nombre } });
         if (plan) {
@@ -49,13 +52,24 @@ export const postPlan = async (req, res) => {
                 message: "Se encontró un plan existente con ese nombre",
             });
         }
+
         const nuevoPlan = await Plan.create({ nombre, isActive: true });
-        // Si se proporcionan IDs de productos, asociar el plan a esos productos
-        if (productosIds && productosIds.length > 0) {
-            const productos = await Producto.findAll({
-                where: { id: productosIds },
+        console.log(nuevoPlan.id);
+        for (const producto of productos) {
+            const { idProd, cantidad } = producto;
+
+            const prod = await Producto.findByPk(idProd);
+            if (!prod) {
+                return res
+                    .status(404)
+                    .json({ message: "Error al asociar productos al plan" });
+            }
+            //se crea un registro de la asociacion entre un plan y un producto, indicando la cantidad de items del producto
+            await PlanProducto.create({
+                idPlan: nuevoPlan.id,
+                idProducto: idProd,
+                cantidad,
             });
-            await nuevoPlan.addProductos(productos); // Asocia los productos al plan
         }
         res.status(201).json({ message: "PLan creado con exito" });
     } catch (error) {
@@ -64,7 +78,7 @@ export const postPlan = async (req, res) => {
     }
 };
 export const putPlan = async (req, res) => {
-    const { nombre, productosIds } = req.body;
+    const { nombre, productos } = req.body;
     try {
         const plan = await Plan.findByPk(req.params.id, {
             include: [
@@ -90,7 +104,7 @@ export const putPlan = async (req, res) => {
             }
             plan.nombre = req.body.nombre;
         }
-        // Si se proporcionan IDs de productos, reemplazar las asociaciones
+        /* // Si se proporcionan IDs de productos, reemplazar las asociaciones
         if (productosIds && productosIds.length > 0) {
             // Buscar los productos por sus IDs
             const nuevosProductos = await Producto.findAll({
@@ -99,10 +113,11 @@ export const putPlan = async (req, res) => {
 
             // Reemplazar los productos asociados al plan
             await plan.setProductos(nuevosProductos);
-        }
+        } */
 
         // Guardar los cambios en el plan
         await plan.save();
+
         res.status(200).json({ message: "Plan actualizado con exito" });
     } catch (error) {
         console.error(error);
