@@ -135,13 +135,12 @@ export const postCliente = async (req, res) => {
         );
 
         // Actualizar el inventario de productos
-        await updatePlanInventory(clientPlanRel.idPlan, transaction);
+        await updatePlanInventory(clientPlanRel.idPlan, transaction, res);
 
         // Confirmar la transacción y enviar respuesta
         await transaction.commit();
         res.status(201).json({ message: "Cliente registrado con éxito" });
     } catch (error) {
-        await transaction.rollback();
         console.error(error);
         res.status(500).json({ message: "Error al realizar el registro" });
     }
@@ -214,7 +213,7 @@ const registerFirstPayment = async (
         { transaction }
     );
 };
-const updatePlanInventory = async (idPlan, transaction) => {
+const updatePlanInventory = async (idPlan, transaction, res) => {
     const plan = await Plan.findByPk(idPlan, {
         include: [
             {
@@ -233,9 +232,7 @@ const updatePlanInventory = async (idPlan, transaction) => {
     for (const producto of plan.Productos) {
         if (producto.cantidad < producto.PlanProducto.cantidad) {
             await transaction.rollback();
-            return res.status(400).json({
-                message: `No hay suficiente stock de ${producto.nombre}`,
-            });
+            throw new Error(`No hay suficiente stock de ${producto.nombre}`);
         }
     }
 

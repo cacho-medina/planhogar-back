@@ -54,7 +54,7 @@ export const postPlan = async (req, res) => {
         }
 
         const nuevoPlan = await Plan.create({ nombre, isActive: true });
-        console.log(nuevoPlan.id);
+
         for (const producto of productos) {
             const { idProd, cantidad } = producto;
 
