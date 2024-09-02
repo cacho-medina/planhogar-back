@@ -27,6 +27,10 @@ export const PlanProducto = sequelize.define(
             },
             allowNull: false,
         },
+        cantidad: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
     },
     {
         timestamps: false,
