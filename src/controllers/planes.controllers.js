@@ -48,7 +48,7 @@ export const postPlan = async (req, res) => {
     try {
         const plan = await Plan.findOne({ where: { nombre } });
         if (plan) {
-            return res.status(404).json({
+            return res.status(409).json({
                 message: "Se encontró un plan existente con ese nombre",
             });
         }
@@ -103,20 +103,16 @@ export const putPlan = async (req, res) => {
                     .json({ message: "Ya existe un plan con ese nombre" });
             }
             plan.nombre = req.body.nombre;
+            // Guardar los cambios en el plan
+            await plan.save();
         }
-        /* // Si se proporcionan IDs de productos, reemplazar las asociaciones
-        if (productosIds && productosIds.length > 0) {
-            // Buscar los productos por sus IDs
-            const nuevosProductos = await Producto.findAll({
-                where: { id: productosIds },
-            });
+        // Si se proporcionan productos, reemplazar las asociaciones
+        if (productos && productos.length > 0) {
+            await PlanProducto.destroy({ where: { idPlan: plan.id } });
 
             // Reemplazar los productos asociados al plan
             await plan.setProductos(nuevosProductos);
-        } */
-
-        // Guardar los cambios en el plan
-        await plan.save();
+        }
 
         res.status(200).json({ message: "Plan actualizado con exito" });
     } catch (error) {
