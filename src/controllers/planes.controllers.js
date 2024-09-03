@@ -77,6 +77,7 @@ export const postPlan = async (req, res) => {
         res.status(500).json({ message: "El plan no pudo ser registrado" });
     }
 };
+
 export const putPlan = async (req, res) => {
     const { nombre, productos } = req.body;
     try {
@@ -108,10 +109,26 @@ export const putPlan = async (req, res) => {
         }
         // Si se proporcionan productos, reemplazar las asociaciones
         if (productos && productos.length > 0) {
+            // Eliminar todas las asociaciones existentes
             await PlanProducto.destroy({ where: { idPlan: plan.id } });
 
-            // Reemplazar los productos asociados al plan
-            await plan.setProductos(nuevosProductos);
+            //Crea nuevas asociaciones
+            for (const producto of productos) {
+                const { idProd, cantidad } = producto;
+
+                const prod = await Producto.findByPk(idProd);
+                if (!prod) {
+                    return res.status(404).json({
+                        message: "Error al asociar productos al plan",
+                    });
+                }
+                //se crea un registro de la asociacion entre un plan y un producto, indicando la cantidad de items del producto
+                await PlanProducto.create({
+                    idPlan: plan.id,
+                    idProducto: idProd,
+                    cantidad,
+                });
+            }
         }
 
         res.status(200).json({ message: "Plan actualizado con exito" });
