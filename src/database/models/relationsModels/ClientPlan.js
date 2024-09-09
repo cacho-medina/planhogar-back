@@ -31,6 +31,10 @@ export const ClientPlanRelation = sequelize.define(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        extension: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
     },
     {
         timestamps: false,

@@ -7,7 +7,7 @@ import sequelize from "../database/connection.js";
 
 export const getClientes = async (req, res) => {
     try {
-        const clientes = await Cliente.findAll();
+        const clientes = await Cliente.findAll({ order: [["nombre", "ASC"]] });
         res.status(200).json(clientes);
     } catch (error) {
         console.error(error);
@@ -96,7 +96,8 @@ export const getClientes = async (req, res) => {
 export const postCliente = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
-        const { nombre, documento, idPlan, monto, medio, cobrador } = req.body;
+        const { nombre, documento, idPlan, monto, medio, cobrador, extension } =
+            req.body;
 
         // Validar la solicitud
         if (!nombre || !documento || !idPlan || !monto || !medio || !cobrador) {
@@ -124,6 +125,7 @@ export const postCliente = async (req, res) => {
         const clientPlanRel = await associateClientWithPlan(
             clienteRegistrado.id,
             idPlan,
+            extension,
             transaction
         );
         await registerFirstPayment(
@@ -134,8 +136,8 @@ export const postCliente = async (req, res) => {
             transaction
         );
 
-        // Actualizar el inventario de productos
-        await updatePlanInventory(clientPlanRel.idPlan, transaction, res);
+        // Actualizar el inventario de productos *UPDATE hay que agregar otra ruta para que al presionar un boton se ejecute esta funcion
+        /* await updatePlanInventory(clientPlanRel.idPlan, transaction); */
 
         // Confirmar la transacción y enviar respuesta
         await transaction.commit();
@@ -184,12 +186,18 @@ const checkClientPlanAssociation = async (idClient, idPlan, transaction) => {
         throw new Error("El cliente ya está asociado al plan seleccionado");
     }
 };
-const associateClientWithPlan = async (idClient, idPlan, transaction) => {
+const associateClientWithPlan = async (
+    idClient,
+    idPlan,
+    extension,
+    transaction
+) => {
     return await ClientPlanRelation.create(
         {
             idClient,
             idPlan,
             fechaRegistro: new Date(),
+            extension,
         },
         { transaction }
     );
@@ -213,7 +221,7 @@ const registerFirstPayment = async (
         { transaction }
     );
 };
-const updatePlanInventory = async (idPlan, transaction, res) => {
+const updatePlanInventory = async (idPlan, transaction) => {
     const plan = await Plan.findByPk(idPlan, {
         include: [
             {

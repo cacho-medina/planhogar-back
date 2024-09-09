@@ -92,6 +92,14 @@ export const postPagos = async (req, res) => {
                 message: "El cliente no esta asociado plan seleccionado",
             });
         }
+        //verificar si ya se pago por completo el plan
+        if (numeroCuota > planByClient.extension) {
+            return res.status(500).json({
+                message:
+                    "No se puede registrar el pago de cuotas excedentes a la extension del plan",
+            });
+        }
+
         //verificar si el numero de cuota a pagar ya esta registrado
         const pagoRegistrado = await Payment.findOne({
             where: { clientPlanId: planByClient.id, numeroCuota },

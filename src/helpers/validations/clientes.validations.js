@@ -22,6 +22,17 @@ const validacionCliente = [
     check("monto")
         .notEmpty()
         .withMessage("El monto de la primera cuota es obligatorio"),
+    check("extension")
+        .notEmpty()
+        .custom((value) => {
+            if (value > 15 && value < 10) {
+                throw new Error(
+                    "La opciones validas de extension son de 10 o 15 cuotas"
+                );
+            } else {
+                return true;
+            }
+        }),
     check("medio").notEmpty().withMessage("El medio de pago es obligatorio"),
     check("cobrador")
         .notEmpty()

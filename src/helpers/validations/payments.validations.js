@@ -24,7 +24,16 @@ const paymentsValidations = [
         ),
     check("numeroCuota")
         .notEmpty()
-        .withMessage("El numero de la cuota a pagar es obligatorio"),
+        .withMessage("El numero de la cuota a pagar es obligatorio")
+        .custom((value) => {
+            if (value > 15) {
+                throw new Error(
+                    "La cantidad maxima de cuotas para pagar permitidas es de 15"
+                );
+            } else {
+                return true;
+            }
+        }),
     (req, res, next) => resultadoValidacion(req, res, next),
 ];
 
